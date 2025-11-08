@@ -1,0 +1,216 @@
+<!doctype html>
+<html lang="id">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Create Time Study - Prefilled</title>
+  <style>
+    :root{
+      --page-bg: #ecf0ea;
+      --panel-bg: #ffffff;
+      --kop-green: #0b7a19;
+      --kop-green-dark: #076212;
+      --accent: #0b7a19;
+      --muted: #6b7280;
+      --border: #d6dadd;
+      --text: #0f1720;
+      --input-bg: #fbfcfd;
+      --cell-alt: #fbfdfb;
+    }
+    html,body{height:100%;margin:0}
+    body{
+      font-family:"Segoe UI",Roboto,Arial, sans-serif;
+      background:var(--page-bg);
+      color:var(--text);
+      padding:20px;
+      display:flex;
+      justify-content:center;
+      box-sizing:border-box;
+    }
+    .container{width:98%;max-width:1200px}
+    .kop{
+      background:linear-gradient(180deg,var(--kop-green),var(--kop-green-dark));
+      color:#fff;border-radius:6px;padding:12px;margin-bottom:12px;
+      box-shadow:0 4px 12px rgba(11,122,25,0.12);
+      text-align:center;font-weight:800;
+    }
+    .card{background:var(--panel-bg);border-radius:8px;padding:14px;box-shadow:0 8px 20px rgba(15,23,32,0.06)}
+    h1{margin:0 0 12px;color:var(--kop-green-dark);text-align:center}
+    .toolbar{display:flex;justify-content:space-between;align-items:center;margin-bottom:12px}
+    .note{color:var(--muted);font-size:13px}
+    .btn{background:var(--accent);color:#fff;padding:8px 12px;border-radius:6px;border:none;cursor:pointer;font-weight:700}
+    .btn.ghost{background:transparent;color:var(--text);border:1px solid var(--border)}
+    table{width:100%;border-collapse:collapse;font-size:13px}
+    thead th{background:linear-gradient(180deg,#e9f6e9,#dff0df);color:var(--kop-green-dark);padding:10px;border:1px solid var(--border);text-transform:uppercase;font-weight:700;font-size:12px}
+    tbody td{padding:8px;border:1px solid var(--border);vertical-align:top;background:var(--panel-bg);word-break:break-word;white-space:normal}
+    tbody tr:nth-child(even) td{background:var(--cell-alt)}
+    input[type="text"], input[type="number"]{width:100%;box-sizing:border-box;padding:6px;border-radius:4px;border:1px solid var(--border);background:var(--input-bg);color:var(--text)}
+    textarea.work-input, textarea.we-input{
+      width:100%;box-sizing:border-box;padding:6px;border:1px solid var(--border);border-radius:4px;background:var(--input-bg);
+      color:var(--text);font-size:12px;line-height:1.2;min-height:40px;resize:vertical;white-space:pre-wrap;overflow-wrap:break-word;
+    }
+    th.sample-col, td.sample-td{width:48px;min-width:48px;max-width:48px;text-align:center}
+    input.sample{width:44px;padding:6px;text-align:center;font-size:12px}
+    .icon-btn{display:inline-flex;align-items:center;justify-content:center;width:36px;height:36px;border-radius:6px;border:1px solid var(--border);background:transparent;color:var(--kop-green);cursor:pointer}
+    @media (max-width:900px){thead th{font-size:11px} th.sample-col, td.sample-td{width:36px}}
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="kop">Create Time Study — Input Data</div>
+
+    <div class="card">
+      <h1>Create Time Study</h1>
+
+      <div class="toolbar">
+        <div class="note">Data terisi otomatis. Anda bisa mengedit / menambah element, lalu Export CSV.</div>
+        <div>
+          <button id="addGroupBtn" class="btn">+ Tambah Work Unit</button>
+          <button id="clearBtn" class="btn ghost">Kosongkan Semua</button>
+        </div>
+      </div>
+
+      <div style="overflow:auto">
+        <table id="dataTable" aria-label="time-study-table">
+          <thead>
+            <tr>
+              <th style="width:6%">No.</th>
+              <th style="width:30%">Work unit</th>
+              <th style="width:6%">SN</th>
+              <th style="width:30%">Work Element</th>
+              <th class="sample-col">Aksi</th>
+            </tr>
+          </thead>
+          <tbody>
+            <!-- JS will render rows -->
+          </tbody>
+        </table>
+      </div>
+
+      <div style="display:flex;justify-content:flex-end;margin-top:12px;gap:8px">
+        <button id="exportCsv" class="btn">Export CSV</button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+  (function(){
+    const tbody = document.querySelector('#dataTable tbody');
+    const addGroupBtn = document.getElementById('addGroupBtn');
+    const clearBtn = document.getElementById('clearBtn');
+    const exportBtn = document.getElementById('exportCsv');
+
+    let idCounter = 1;
+    function createGroup(no, work, elements){
+      return { id: idCounter++, no: String(no), work: work || '', elements: (elements||[]).map(e=>({ sn:String(e.sn), we:e.we })) };
+    }
+
+    // Prefill data as requested
+    let groups = [
+      createGroup(1, 'Pengecekan battery cover', [
+        {sn:1, we:'Pelepasan tape'},
+        {sn:2, we:'Pengecekan battery cover'},
+        {sn:3, we:'Pengecekan battery cover  bagian dalam'}
+      ]),
+      createGroup(2, 'Pemasangan lensa kamera belakang', [
+        {sn:1, we:'Pastikan lensa kamera utama belakang'},
+        {sn:2, we:'Pemasangan lensa'},
+        {sn:3, we:'Pengecekan lensa'}
+      ]),
+      createGroup(3, 'Pemasangan decorative lensa', [
+        {sn:1, we:'Lepaskan 1 lembar pelindung (film proteksi)'},
+        {sn:2, we:'Pemasangan lensa'},
+        {sn:3, we:'Pengecekan lensa'},
+        {sn:4, we:'Repressing'}
+      ]),
+      createGroup(5, 'Preinstalasi kamera', [
+        {sn:1, we:'Letakan camera ke dalam fixture'},
+        {sn:2, we:'Pemasangan foil Conductive Cloth'},
+        {sn:3, we:'Ratakan bagian Conductive Cloth'},
+        {sn:4, we:'Preinstalasi C board'}
+      ])
+    ];
+
+    function render(){
+      tbody.innerHTML = '';
+      if (!groups.length){
+        const tr = document.createElement('tr');
+        const td = document.createElement('td');
+        td.colSpan = 5; td.className='muted'; td.textContent = 'Tidak ada data.';
+        tr.appendChild(td); tbody.appendChild(tr); return;
+      }
+
+      groups.forEach(g=>{
+        const rowCount = Math.max(1, g.elements.length);
+        g.elements.forEach((el, idx)=>{
+          const tr = document.createElement('tr');
+
+          if (idx===0){
+            const noTd = document.createElement('td'); noTd.rowSpan = rowCount;
+            const noInput = document.createElement('input'); noInput.type='text'; noInput.value = g.no; noInput.addEventListener('input', e=>g.no = e.target.value);
+            noInput.style.width='64px';
+            noTd.appendChild(noInput); tr.appendChild(noTd);
+
+            const workTd = document.createElement('td'); workTd.rowSpan = rowCount;
+            const workTa = document.createElement('textarea'); workTa.className='work-input'; workTa.rows=2; workTa.value = g.work;
+            workTa.addEventListener('input', e=> g.work = e.target.value);
+            workTd.appendChild(workTa);
+            tr.appendChild(workTd);
+          }
+
+          const snTd = document.createElement('td');
+          const snInput = document.createElement('input'); snInput.type='text'; snInput.value = el.sn || String(idx+1);
+          snInput.addEventListener('input', e=> el.sn = e.target.value);
+          snTd.appendChild(snInput); tr.appendChild(snTd);
+
+          const weTd = document.createElement('td');
+          const weTa = document.createElement('textarea'); weTa.className='we-input'; weTa.rows=2; weTa.value = el.we || '';
+          weTa.addEventListener('input', e=> el.we = e.target.value);
+          weTd.appendChild(weTa); tr.appendChild(weTd);
+
+          const actTd = document.createElement('td'); actTd.style.textAlign='center';
+          if (idx===0){
+            const addBtn = document.createElement('button'); addBtn.className='btn'; addBtn.textContent='+';
+            addBtn.title='Tambah element'; addBtn.addEventListener('click', e=>{ g.elements.push({sn:'', we:''}); render(); });
+            addBtn.style.marginRight='6px';
+            actTd.appendChild(addBtn);
+
+            const trash = document.createElement('button'); trash.className='icon-btn'; trash.title='Hapus Group';
+            trash.innerHTML = '<svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M9 3v1H4v2h16V4h-5V3H9zm1 5v9h2V8h-2zm4 0v9h2V8h-2zM7 8v9h2V8H7z" fill="currentColor"/></svg>';
+            trash.addEventListener('click', e=>{ if(confirm('Hapus Work Unit dan semua elementnya?')){ groups = groups.filter(x=>x.id!==g.id); render(); } });
+            actTd.appendChild(trash);
+          } else {
+            const delEl = document.createElement('button'); delEl.className='btn ghost'; delEl.textContent='−';
+            delEl.title='Hapus element'; delEl.addEventListener('click', e=>{ g.elements.splice(idx,1); if(g.elements.length===0) groups = groups.filter(x=>x.id!==g.id); render(); });
+            actTd.appendChild(delEl);
+          }
+
+          tr.appendChild(actTd);
+          tbody.appendChild(tr);
+        });
+      });
+    }
+
+    addGroupBtn.addEventListener('click', ()=>{ groups.push(createGroup('', '', [{sn:'1', we:''}])); render(); });
+    clearBtn.addEventListener('click', ()=>{ if(confirm('Kosongkan semua data?')){ groups = []; render(); } });
+
+    exportBtn.addEventListener('click', ()=>{
+      if(!groups.length) return alert('Tidak ada data untuk diekspor');
+      const header = ['No','Work unit','SN','Work Element'];
+      const rows = [header];
+      groups.forEach(g=>{
+        g.elements.forEach(el=>{
+          rows.push([g.no||'', g.work||'', el.sn||'', el.we||'']);
+        });
+      });
+      const csv = rows.map(r=> r.map(c=> `"${String(c||'').replace(/"/g,'""')}"`).join(',')).join('\n');
+      const blob = new Blob([csv], {type:'text/csv'}); const url = URL.createObjectURL(blob);
+      const a = document.createElement('a'); a.href=url; a.download='time-study.csv'; a.click(); URL.revokeObjectURL(url);
+    });
+
+    // initial render
+    render();
+  })();
+  </script>
+</body>
+</html>

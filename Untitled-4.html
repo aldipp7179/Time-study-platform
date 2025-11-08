@@ -1,0 +1,645 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Form Create - Work Units (Samples 1..10)</title>
+  <style>
+    /* Palet warna disesuaikan: header hijau (Excel-like), table putih, teks gelap */
+    :root{
+      --page-bg: #ecf0ea;
+      --panel-bg: #ffffff;
+      --kop-green: #0b7a19;
+      --kop-green-dark: #076212;
+      --accent: #0b7a19;
+      --muted: #6b7280;
+      --border: #d6dadd;
+      --text: #0f1720;
+      --input-bg: #fbfcfd;
+      --cell-alt: #fbfdfb;
+    }
+
+    html,body{height:100%;margin:0}
+    body{
+      font-family: "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+      background:var(--page-bg);
+      color:var(--text);
+      padding:20px;
+      display:flex;
+      justify-content:center;
+      box-sizing:border-box;
+    }
+
+    .container{width:98%; max-width:1400px}
+
+    /* KOP / Header */
+    .kop{
+      background:linear-gradient(180deg,var(--kop-green),var(--kop-green-dark));
+      color:#fff;
+      border-radius:6px;
+      box-shadow:0 4px 10px rgba(11,122,25,0.12);
+      overflow:hidden;
+      margin-bottom:14px;
+    }
+    .kop .top-row{
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      padding:12px 16px;
+      gap:12px;
+    }
+    .kop .title{
+      text-align:center;
+      font-weight:800;
+      letter-spacing:0.6px;
+      font-size:20px;
+    }
+    .kop .meta{
+      display:flex;
+      gap:10px;
+      align-items:center;
+    }
+    .kop label{font-size:13px;opacity:0.95}
+    .kop input[type="text"], .kop input[type="number"], .kop input[type="date"]{
+      background:transparent;
+      border:1px solid rgba(255,255,255,0.18);
+      color: #fff;
+      padding:4px 8px;
+      border-radius:4px;
+      width:110px;
+      box-sizing:border-box;
+      font-weight:600;
+    }
+    .kop .grid{
+      display:flex;
+      gap:0;
+      background:#fff;
+      color:var(--text);
+      padding:8px;
+      border-top:4px solid rgba(0,0,0,0.04);
+    }
+    .kop .grid .cell{
+      flex:1;
+      padding:8px 12px;
+      border-right:1px solid var(--border);
+      display:flex;
+      flex-direction:column;
+      justify-content:center;
+      gap:6px;
+    }
+    .kop .grid .cell:last-child{border-right:none}
+    .kop .label{font-weight:700;color:var(--kop-green);font-size:13px}
+    .kop .value input{border:1px solid var(--border);padding:6px;border-radius:4px}
+
+    /* Fix spacing for Process / CT / TT block to avoid overlap */
+    .kop .proc-ct-tt{
+      width:260px;                 /* cukup ruang untuk ketiga kolom */
+      display:flex;
+      gap:12px;                    /* jarak antar kolom */
+      align-items:center;
+      box-sizing:border-box;
+    }
+    .kop .proc-ct-tt .value{min-width:0}
+    .kop .proc-ct-tt .value input{
+      width:100%;
+      box-sizing:border-box;
+      max-width:120px;
+    }
+
+    /* Card / Form area */
+    .card{
+      background:var(--panel-bg);
+      border-radius:6px;
+      box-shadow:0 6px 18px rgba(15,23,32,0.06);
+      padding:12px;
+    }
+
+    h1{font-size:16px;margin:6px 0 12px;color:var(--text);font-weight:700}
+
+    table{
+      width:100%;
+      border-collapse:collapse;
+      background:var(--panel-bg);
+      font-size:13px;
+    }
+
+    thead th{
+      background: linear-gradient(180deg, #e9f6e9, #dff0df);
+      color:var(--kop-green-dark);
+      padding:10px 8px;
+      border:1px solid var(--border);
+      text-transform:uppercase;
+      font-weight:700;
+      font-size:12px;
+    }
+
+    /* Column sizing adjustments:
+       - Make sample columns small
+       - Enlarge Work unit and Work element columns and inputs
+       - Enable wrapping for work & element cells
+    */
+    th.sample-col, td.sample-td { width:48px; min-width:48px; max-width:48px; padding:6px; }
+    th.col-work, td.col-work { width:30%; }
+    th.col-we, td.col-we { width:26%; }
+
+    tbody td{
+      padding:8px;
+      border:1px solid var(--border);
+      vertical-align:middle;
+      background:var(--panel-bg);
+      color:var(--text);
+      word-break:break-word;
+      white-space:normal;
+      overflow-wrap:break-word;
+    }
+
+    tbody tr:nth-child(even) td{ background: var(--cell-alt); }
+
+    input[type="text"], input[type="number"]{
+      width:100%;
+      box-sizing:border-box;
+      padding:6px 8px;
+      border-radius:4px;
+      border:1px solid var(--border);
+      background:var(--input-bg);
+      color:var(--text);
+      font-size:13px;
+    }
+
+    /* make sample inputs compact */
+    input.sample { width:44px; margin:0 auto; display:block; text-align:center; padding:4px; font-size:12px; }
+    input.tight{padding:4px}
+
+    /* work & work element use textarea to allow wrapping and show full text
+       Text size made slightly smaller per request so more fits visually */
+    textarea.work-input, textarea.we-input {
+      font-size:12px;              /* smaller text */
+      font-weight:600;
+      padding:6px 8px;
+      width:100%;
+      box-sizing:border-box;
+      border:1px solid var(--border);
+      border-radius:4px;
+      background:var(--input-bg);
+      color:var(--text);
+      resize:vertical;             /* user can expand vertically if needed */
+      min-height:36px;
+      line-height:1.2;
+      overflow-wrap:break-word;
+      word-break:break-word;
+      white-space:pre-wrap;
+    }
+
+    td.col-work, td.col-we {
+      vertical-align:top;
+      padding-top:10px;
+    }
+
+    .controls{display:flex;justify-content:space-between;align-items:center;margin-top:10px;gap:12px}
+    .note{color:var(--muted);font-size:13px}
+
+    .btn{
+      background:var(--accent);
+      color:#fff;
+      padding:8px 12px;
+      border-radius:6px;
+      border:none;
+      cursor:pointer;
+      font-weight:700;
+      box-shadow:0 2px 6px rgba(11,122,25,0.18);
+    }
+    .btn.ghost{
+      background:transparent;
+      border:1px solid var(--border);
+      color:var(--text);
+      font-weight:600;
+      box-shadow:none;
+    }
+    .btn.small{padding:6px 8px;font-size:13px}
+
+    /* icon button style for trash button */
+    .btn.icon-btn, .btn.ghost.icon-btn {
+      padding:6px;
+      width:36px;
+      height:36px;
+      display:inline-flex;
+      align-items:center;
+      justify-content:center;
+      border-radius:6px;
+      box-sizing:border-box;
+    }
+    .btn.ghost.icon-btn {
+      border:1px solid var(--border);
+      background:transparent;
+      color:var(--kop-green);
+    }
+    .btn.icon-btn svg {
+      width:16px;
+      height:16px;
+      display:block;
+      color:inherit;
+    }
+
+    .action-btn{background:transparent;border:none;color:var(--kop-green);cursor:pointer;font-weight:700}
+    .center{text-align:center}
+    .no-input{width:84px}
+    .muted{color:var(--muted);font-size:12px}
+
+    /* responsive */
+    @media (max-width:1100px){
+      .kop .meta input{width:86px}
+      thead th{font-size:11px;padding:8px}
+      tbody td{padding:6px}
+      input.sample{width:40px}
+      th.sample-col, td.sample-td { width:40px; min-width:40px; max-width:40px; }
+    }
+    @media (max-width:760px){
+      .kop .top-row{flex-direction:column;align-items:stretch;gap:8px}
+      .kop .title{order:0}
+      .kop .meta{justify-content:flex-end}
+      .kop .grid{flex-direction:column}
+      table{font-size:12px}
+      .no-input{width:64px}
+      th.col-work, td.col-work { width:40%; }
+      th.col-we, td.col-we { width:30%; }
+      .kop .proc-ct-tt{width:100%}
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+
+    <!-- KOP / header -->
+    <div class="kop" id="kop">
+      <div class="top-row">
+        <div style="display:flex;gap:12px;align-items:center">
+          <div style="min-width:140px;display:flex;flex-direction:column">
+            <label style="font-size:12px;color:rgba(255,255,255,0.9)">Total Manpower</label>
+            <input id="kop-manpower" type="number" value="56" />
+          </div>
+          <div style="min-width:120px;display:flex;flex-direction:column">
+            <label style="font-size:12px;color:rgba(255,255,255,0.9)">Bottleneck (sec)</label>
+            <input id="kop-bottleneck" type="text" value="#DIV/0!" />
+          </div>
+        </div>
+
+        <div class="title">Time Study RMX5566 Moscow B</div>
+
+        <div class="meta">
+          <div style="display:flex;flex-direction:column">
+            <label style="font-size:12px;color:rgba(255,255,255,0.9)">Prepared by</label>
+            <input id="kop-prepared" type="text" value="Rozi" />
+          </div>
+          <div style="display:flex;flex-direction:column">
+            <label style="font-size:12px;color:rgba(255,255,255,0.9)">Date</label>
+            <input id="kop-date" type="date" value="2025-10-18" />
+          </div>
+          <div style="display:flex;flex-direction:column">
+            <label style="font-size:12px;color:rgba(255,255,255,0.9)">UPH</label>
+            <input id="kop-uph" type="text" value="#DIV/0!" />
+          </div>
+        </div>
+      </div>
+
+      <!-- lower grid: left = labels, right = process/CT/TT block -->
+      <div class="grid">
+        <div class="cell" style="display:flex;gap:12px">
+          <div style="flex:1;min-width:0">
+            <div class="label">Line Balancing Rate</div>
+            <div class="value"><input id="kop-lbr" type="text" value="#DIV/0!" /></div>
+          </div>
+          <div style="flex:1;min-width:0">
+            <div class="label">Prepared notes</div>
+            <div class="value"><input id="kop-notes" type="text" value="" placeholder="Notes..." /></div>
+          </div>
+        </div>
+
+        <div class="cell" style="display:flex;align-items:center;justify-content:flex-end;gap:12px">
+          <div class="proc-ct-tt">
+            <div style="flex:1">
+              <div class="label">Process</div>
+              <div class="value"><input id="kop-process" type="text" value="#DIV/0!" /></div>
+            </div>
+            <div style="width:70px;min-width:70px">
+              <div class="label">CT</div>
+              <div class="value"><input id="kop-ct" type="text" value="#DIV/0!" /></div>
+            </div>
+            <div style="width:70px;min-width:70px">
+              <div class="label">TT</div>
+              <div class="value"><input id="kop-tt" type="text" value="18" /></div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <!-- END KOP -->
+
+    <div class="card">
+      <h1>Input Work Units — Samples 1..10</h1>
+
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px">
+        <div class="note">Isi kolom No (format bebas), Work unit, SN per element, Work Element, sample 1..10. Gunakan tombol + untuk menambah.</div>
+        <div style="display:flex;gap:8px">
+          <button id="addGroupBtn" class="btn small">+ Tambah Work Unit</button>
+          <button id="clearBtn" class="btn ghost small">Kosongkan Semua</button>
+        </div>
+      </div>
+
+      <div style="overflow:auto">
+      <table id="dataTable" aria-label="form-table">
+        <thead>
+          <tr>
+            <th style="width:6%">No.</th>
+            <th class="col-work">Work unit</th>
+            <th style="width:6%">SN</th>
+            <th class="col-we">Work Element</th>
+            <th class="sample-col center">1</th><th class="sample-col center">2</th><th class="sample-col center">3</th><th class="sample-col center">4</th><th class="sample-col center">5</th>
+            <th class="sample-col center">6</th><th class="sample-col center">7</th><th class="sample-col center">8</th><th class="sample-col center">9</th><th class="sample-col center">10</th>
+            <th class="center">Diff.</th>
+            <th class="center">Avg.</th>
+            <th class="center">Toll.</th>
+            <th class="center">Std.Time</th>
+            <th class="center">Total</th>
+            <th class="center">UPH</th>
+            <th class="center">Fluct. Rate</th>
+            <th class="center">Aksi</th>
+          </tr>
+        </thead>
+        <tbody>
+          <!-- rendered by JS -->
+        </tbody>
+      </table>
+      </div>
+
+      <div class="controls" style="margin-top:12px">
+        <div class="note">Std.Time = Avg * (1 + Tolleransi). Tolleransi default 10% per element. Export meratakan setiap Work Element ke baris CSV.</div>
+        <div>
+          <button id="exportCsv" class="btn small">Export CSV</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+  (function(){
+    const tbody = document.querySelector('#dataTable tbody');
+    const addGroupBtn = document.getElementById('addGroupBtn');
+    const clearBtn = document.getElementById('clearBtn');
+    const exportBtn = document.getElementById('exportCsv');
+
+    // model: groups { id, no (string), work, elements: [{ sn, we, samples:[10], toll }] }
+    let groups = [];
+    let idCounter = 1;
+
+    function createEmptyGroup(fill = {}) {
+      const elFill = fill.elements || [{ sn:'', we:'', samples: Array(10).fill(''), toll: 0.10 }];
+      const elements = elFill.map(e => ({
+        sn: (typeof e.sn !== 'undefined') ? e.sn : '',
+        we: e.we || '',
+        samples: (e.samples && e.samples.length===10) ? e.samples.slice() : Array(10).fill(''),
+        toll: (typeof e.toll !== 'undefined') ? Number(e.toll) : 0.10    // toll as decimal (0.10 = 10%)
+      }));
+      return { id: idCounter++, no: fill.no || '', work: fill.work || '', elements };
+    }
+
+    function parseNumber(v){ const n = parseFloat(String(v).replace(',', '.')); return Number.isFinite(n) ? n : NaN; }
+    function computeStats(samples){
+      const nums = (samples||[]).map(parseNumber).filter(n=>!Number.isNaN(n));
+      if (nums.length === 0) return { diff: '', avg: '', stdDev: '' };
+      const mx = Math.max(...nums), mn = Math.min(...nums);
+      const avg = nums.reduce((s,x)=>s+x,0)/nums.length;
+      const variance = nums.reduce((s,x)=>s+Math.pow(x-avg,2),0)/nums.length;
+      const stdDev = Math.sqrt(variance);
+      return { diff: +(mx-mn).toFixed(2), avg: +avg.toFixed(2), stdDev: +stdDev.toFixed(2) };
+    }
+
+    function render(){
+      tbody.innerHTML = '';
+      if (groups.length === 0) {
+        const tr = document.createElement('tr');
+        const td = document.createElement('td');
+        td.colSpan = 22;
+        td.className = 'muted';
+        td.textContent = 'Tidak ada Work Unit. Klik "+ Tambah Work Unit" untuk mulai.';
+        tr.appendChild(td);
+        tbody.appendChild(tr);
+        return;
+      }
+
+      groups.forEach((g) => {
+        const rowCount = Math.max(1, g.elements.length);
+
+        // compute group totals using Std.Time = Avg * (1 + toll)
+        let sumStdTime = 0, sumStdDev = 0, sumAvg = 0;
+        g.elements.forEach((el) => {
+          const s = computeStats(el.samples);
+          if (s.avg !== '') {
+            const toll = Number.isFinite(Number(el.toll)) ? Number(el.toll) : 0.10;
+            const stdTime = +( (s.avg * (1 + toll)).toFixed(2) );
+            sumStdTime += stdTime;
+            sumAvg += s.avg;
+          }
+          if (s.stdDev !== '') sumStdDev += s.stdDev;
+        });
+        const total = +(sumStdTime.toFixed(2));
+        const uph = (total > 0) ? +( (3600/total).toFixed(2) ) : '';
+        const fluctRate = (sumAvg>0) ? ((sumStdDev/sumAvg*100).toFixed(1) + '%') : '';
+
+        g.elements.forEach((el, ei) => {
+          const tr = document.createElement('tr');
+
+          if (ei === 0) {
+            const noTd = document.createElement('td');
+            noTd.rowSpan = rowCount;
+            const noInput = document.createElement('input');
+            noInput.type = 'text';
+            noInput.value = g.no || '';
+            noInput.className = 'no-input tight';
+            noInput.addEventListener('input', e => { g.no = e.target.value; });
+            noTd.appendChild(noInput);
+            tr.appendChild(noTd);
+
+            const workTd = document.createElement('td');
+            workTd.rowSpan = rowCount;
+            workTd.className = 'col-work';
+            const workInput = document.createElement('textarea');
+            workInput.value = g.work || '';
+            workInput.className = 'work-input';
+            workInput.rows = 2;
+            workInput.addEventListener('input', e => { g.work = e.target.value; });
+            workTd.appendChild(workInput);
+            tr.appendChild(workTd);
+          }
+
+          const snTd = document.createElement('td');
+          const snInput = document.createElement('input');
+          snInput.type = 'text';
+          snInput.value = (el.sn !== '' && el.sn != null) ? el.sn : String(ei+1);
+          snInput.className = 'tight';
+          snInput.addEventListener('input', e => { el.sn = e.target.value; });
+          snTd.appendChild(snInput);
+          tr.appendChild(snTd);
+
+          const weTd = document.createElement('td');
+          weTd.className = 'col-we';
+          const weInput = document.createElement('textarea');
+          weInput.type = 'text';
+          weInput.value = el.we || '';
+          weInput.placeholder = 'Work element';
+          weInput.className = 'we-input';
+          weInput.rows = 2;
+          weInput.addEventListener('input', e => { el.we = e.target.value; });
+          weInput.addEventListener('keydown', e => { if (e.key === 'Enter' && (e.ctrlKey || e.metaKey)) { g.elements.push({ sn:'', we:'', samples: Array(10).fill(''), toll:0.10 }); render(); }});
+          weTd.appendChild(weInput);
+          tr.appendChild(weTd);
+
+          for (let si = 0; si < 10; si++){
+            const sTd = document.createElement('td'); sTd.className = 'center sample-td';
+            const sInput = document.createElement('input');
+            sInput.type = 'number';
+            sInput.step = '0.01';
+            sInput.className = 'sample';
+            sInput.value = (el.samples && el.samples[si] != null) ? el.samples[si] : '';
+            sInput.addEventListener('input', e => { el.samples[si] = e.target.value; updateAfterSampleChange(); });
+            sTd.appendChild(sInput);
+            tr.appendChild(sTd);
+          }
+
+          const s = computeStats(el.samples || []);
+          const diffTd = document.createElement('td'); diffTd.className = 'center'; diffTd.textContent = (s.diff !== '') ? s.diff : '';
+          const avgTd  = document.createElement('td'); avgTd.className = 'center'; avgTd.textContent = (s.avg !== '') ? s.avg : '';
+
+          // Tolleransi (fixed default 10% but shown automatically)
+          const tollTd = document.createElement('td'); tollTd.className = 'center';
+          const tollVal = Number.isFinite(Number(el.toll)) ? Number(el.toll) : 0.10;
+          tollTd.textContent = (tollVal*100).toFixed(0) + '%';
+
+          const stdTime = (s.avg !== '') ? +( (s.avg * (1 + tollVal)).toFixed(2) ) : '';
+          const stdTd  = document.createElement('td'); stdTd.className = 'center'; stdTd.textContent = (stdTime !== '') ? stdTime : '';
+
+          tr.appendChild(diffTd); tr.appendChild(avgTd); tr.appendChild(tollTd); tr.appendChild(stdTd);
+
+          if (ei === 0) {
+            const totalTd = document.createElement('td'); totalTd.rowSpan = rowCount; totalTd.className = 'center'; totalTd.textContent = (total !== 0) ? total : '';
+            const uphTd   = document.createElement('td'); uphTd.rowSpan = rowCount; uphTd.className = 'center'; uphTd.textContent = uph || '';
+            const flTd    = document.createElement('td'); flTd.rowSpan = rowCount; flTd.className = 'center'; flTd.textContent = fluctRate || '';
+            tr.appendChild(totalTd); tr.appendChild(uphTd); tr.appendChild(flTd);
+          }
+
+          const actTd = document.createElement('td'); actTd.className = 'center';
+          const delElBtn = document.createElement('button'); delElBtn.className = 'action-btn'; delElBtn.textContent = '−'; delElBtn.title = 'Hapus element';
+          delElBtn.addEventListener('click', e => {
+            e.stopPropagation();
+            g.elements.splice(ei, 1);
+            if (g.elements.length === 0) groups = groups.filter(x => x.id !== g.id);
+            render();
+          });
+          actTd.appendChild(delElBtn);
+
+          if (ei === 0) {
+            const addElBtn = document.createElement('button'); addElBtn.className = 'btn small'; addElBtn.type = 'button'; addElBtn.textContent = '+';
+            addElBtn.title = 'Tambah Work Element';
+            addElBtn.style.marginLeft = '6px';
+            addElBtn.addEventListener('click', e => { e.stopPropagation(); g.elements.push({ sn:'', we:'', samples: Array(10).fill(''), toll:0.10 }); render(); });
+
+            // replaced text "Hapus Group" with trash icon button
+            const delGroupBtn = document.createElement('button');
+            delGroupBtn.className = 'btn ghost small icon-btn';
+            delGroupBtn.type = 'button';
+            delGroupBtn.title = 'Hapus Group';
+            delGroupBtn.setAttribute('aria-label', 'Hapus Group');
+            delGroupBtn.style.marginLeft = '6px';
+            // simple trash SVG (uses currentColor)
+            delGroupBtn.innerHTML = '<svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" aria-hidden="true" focusable="false"><path d="M9 3v1H4v2h16V4h-5V3H9zm1 5v9h2V8h-2zm4 0v9h2V8h-2zM7 8v9h2V8H7z" fill="currentColor"/></svg>';
+            delGroupBtn.addEventListener('click', e => {
+              e.stopPropagation();
+              if (!confirm('Hapus Work Unit dan semua elementnya?')) return;
+              groups = groups.filter(x => x.id !== g.id);
+              render();
+            });
+
+            actTd.appendChild(addElBtn);
+            actTd.appendChild(delGroupBtn);
+          }
+
+          tr.appendChild(actTd);
+          tbody.appendChild(tr);
+        });
+      });
+    }
+
+    function updateAfterSampleChange(){
+      render();
+    }
+
+    function addGroup(fill = {}) {
+      groups.push(createEmptyGroup(fill));
+      render();
+      setTimeout(() => {
+        const all = tbody.querySelectorAll('textarea.work-input');
+        if (all.length) all[all.length-1].focus();
+      }, 20);
+    }
+
+    // initial demo group
+    addGroup({ no: '1', work: 'Pengecekan battery cover', elements: [
+      { sn:'1', we:'Pelepasan tape', samples: Array(10).fill(''), toll:0.10 },
+      { sn:'2', we:'Pengecekan battery cover', samples: Array(10).fill(''), toll:0.10 },
+      { sn:'3', we:'Pengecekan battery cover bagian dalam', samples: Array(10).fill(''), toll:0.10 }
+    ]});
+
+    addGroupBtn.addEventListener('click', () => addGroup());
+    clearBtn.addEventListener('click', () => {
+      if (!confirm('Kosongkan semua data?')) return;
+      groups = [];
+      render();
+    });
+
+    exportBtn.addEventListener('click', () => {
+      if (groups.length === 0) return alert('Tidak ada data untuk diekspor');
+      const header = ['No','Work unit','SN','Work Element'];
+      for (let i=1;i<=10;i++) header.push(String(i));
+      header.push('Diff','Avg','Toll','Std.Time','Total','UPH','Fluctuation Rate');
+      const rows = [ header ];
+      groups.forEach(g => {
+        let sumStdTime=0,sumStdDev=0,sumAvg=0;
+        g.elements.forEach(el=>{
+          const s = computeStats(el.samples);
+          const toll = Number.isFinite(Number(el.toll)) ? Number(el.toll) : 0.10;
+          const stdTime = (s.avg !== '') ? +( (s.avg * (1 + toll)).toFixed(2) ) : '';
+          if (s.avg !== '') {
+            sumStdTime += stdTime;
+            sumAvg += s.avg;
+          }
+          if (s.stdDev !== '') sumStdDev += s.stdDev;
+        });
+        const groupTotal = +(sumStdTime.toFixed(2));
+        const groupUPH = groupTotal>0 ? +( (3600/groupTotal).toFixed(2) ) : '';
+        const groupFluct = (sumAvg>0) ? ((sumStdDev/sumAvg*100).toFixed(1) + '%') : '';
+
+        g.elements.forEach((el, ei) => {
+          const s = computeStats(el.samples);
+          const toll = Number.isFinite(Number(el.toll)) ? Number(el.toll) : 0.10;
+          const stdTime = (s.avg !== '') ? +( (s.avg * (1 + toll)).toFixed(2) ) : '';
+          const row = [ g.no || '', g.work || '', el.sn || (ei+1), el.we || '' ];
+          for (let si=0; si<10; si++) row.push(el.samples[si] != null ? el.samples[si] : '');
+          row.push(s.diff !== '' ? s.diff : '', s.avg !== '' ? s.avg : '', (toll*100).toFixed(0) + '%', (stdTime !== '' ? stdTime : ''), (ei===0 ? groupTotal : ''), (ei===0 ? groupUPH : ''), (ei===0 ? groupFluct : '') );
+          rows.push(row);
+        });
+      });
+      const csvContent = rows.map(r => r.map(c => `"${String(c||'').replace(/"/g,'""')}"`).join(',')).join('\n');
+      const blob = new Blob([csvContent], {type:'text/csv'});
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = 'workunits_samples.csv';
+      a.click();
+      URL.revokeObjectURL(url);
+    });
+
+    window.__renderWorkUnits = render;
+    render();
+  })();
+  </script>
+</body>
+</html>
